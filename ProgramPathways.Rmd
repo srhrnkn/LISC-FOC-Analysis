@@ -1,0 +1,526 @@
+---
+title: "Financial Opportunity Centers Program Pathways"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F, digits=2,fig.height=3.2,fig.width=3.2, fig.path='Figs/',global.par=F, dev='png',dev = "win.metafile")
+```
+
+
+```{r tablefigiters}
+fignum<-0
+tablenum<-0
+```
+
+## Abstract
+Financial Opportunity Centers offer integrated employment, financial, and income support services to low-income individuals. Multiple studies have documented the effectiveness of this program approach in terms of ultimate outcomes for participants, but less attention has been paid to patterns of service delivery and outcome attainment over the course of program participation. This report walks through the elements of an FOC participant's program pathway, considering pathways in terms of four program elements: timing, composition, intensity, and sequence of services received. The elements of the pathway are defined, and individual examples as well as aggregate summaries of program pathways and outcome timing & sequence are presented. Finally, a cluster analysis which incorporates all four pathway elements, groups participants into types, and examines outcome attainment based on type membership finds that individuals with ongoing longer term service receipt concentrated in employment counseling had higher placement rates, but those with ongoing longer term attachment concentrated in financial counseling had higher retention and larger FICO increases.
+
+## Introduction
+LISC's Financial Opportunity Centers have been the subject of much analytical attention. The shared data system used by all organizations in the FOC network has allowed for a data-driven approach to program management, with monthly performance reports reviewed by site managers and LISC program staff. Analyses conducted by LISC have examined the impact of bundled services and of skills training on participant outcomes, and an impact evaluation conducted by Economic Mobility Inc. looked at participant outcomes relative to a matched comparison group.[^1 Rankin, S, (2015). Integrated Services and Improved Financial Outcomes for Low-Income Households
+Roder & Elliott (2016). Impact Report on LISC Financial Opportunity Centers, forthcoming.
+] (These prior studies contain full descriptions of the FOC program model and data system.)
+
+Most of these studies have examined outcomes for FOC program participants after a fixed period of study time. But the financial lives of low-income people are complicated, and the client-driven coaching model used by FOCs means that there is a great deal of variation in program service delivery across clients. Indeed, patterns of FOC service delivery are complex precisely because the coaching-driven program model is responsive to the individual needs of clients, which are different across participants and over time for the same participant. Looking only at the beginning and endpoints of a participant's employment and financial status risks masking the complexity of both the services delivered to each participant and the financial ups and downs that we know are experienced by FOC clients. This report attempts to look at the patterns of program service receipt and of outcome attainment for FOC clients. By examining patterns of service delivery and related outcomes, we can begin to think about whether particular approaches to service delivery work better across participants or for particular subsets of participants. 
+
+This report will walk through the elements of an FOC participant's program pathway, considering pathways in terms of four program elements: timing, composition, intensity, and sequence of services received. First, we outline the program and outcome data used in the report. Next, we look at four examples of at individual participants' pathways. Then, program services are summarized in terms of timing, composition, and intensity of services received. Next, outcomes are examined in terms of timing and sequence. Finally, we conduct a cluster analysis which incorporates all four pathway elements, groups participants into types, and examines outcome attainment based on type membership. 
+
+Much of the material in this report is descriptive of the complexity of FOC program services & outcomes. This report is an attempt to think through the questions and provide a framework for analyzing this data. The modeling presented here is preliminary and there is more work that could be done to answer the questions raised here.
+
+## Data
+The dataset for this report consists of records for Financial Opportunity Center clients with initial enrollment in the FOC program between 2/1/2011 and 7/31/2015 - four years and seven months of program service and outcome data. Sixty sites are represented, ranging in FOC program start dates from 2006 through 2013. (Sites that started in 2014 or 2015 are not included because of data incompatibility or availability.)
+
+In previous analyses of the FOC program data, we have looked at outcomes for all participants who enrolled in the FOC program, regardless of their degree of attachment to the program. For this analysis we are more interested in participants who demonstrate some basic attachment to the core FOC program, because we want to compare outcomes for participants with different "valid" pathways through the program. The core of the FOC program is, at minimum, bundled employment and financial coaching services; the analysis below narrows our dataset to individuals with program records indicating they've received a minimal dose of these services. It also narrows to individuals with updated financial data that we have designated as research-quality, so that we can compare financial outcomes for all participants. This analysis group consists of `r sum(IndividualOutcomes$HighProg)` individuals. 
+
+Because we've used a fairly strict definition of "research-quality," the group considered in this analysis is much smaller than the full set of individuals enrolled in FOCs over this time period, although it is still quite large in absolute terms. This should not be taken as an indication that only the clients in this analysis group received the full FOC treatment; rather, the size of the final group is a result an attempt to be conservative about using clients with comparable available data. See the appendix for more details on the dataset used in this report.
+
+This analysis does not examine the factors affecting a client's probability of entering the "program attached" group, although that is a potential area of future work.
+
+### Program service delivery
+Program delivery to FOC clients is recorded within each FOC subprogram - Employment, Financial and Income Supports. When FOC staff work with clients, they record the date and the number of minutes spent with the client. In this report, we will be examining pathways of service delivery by looking at four components:  
+* Timing: when services were received relative to initial program enrollment  
+* Composition: the mix of types of services received (among financial, employment, and income supports)  
+* Intensity: the amount of services received, here expressed in minutes
+* Sequence: the ordering of service types received  
+  
+
+For now, to summarize clients' program service receipt across the full course of their participation, we can look at aggregate measures of the timing, composition, and intensity of program services: the number of minutes recorded within each program, the number of unique days of service recorded, and the total days elapsed between the first and last days of service receipt. The median time spent across all programs is 355 minutes, or about 6 hours. The median participant receives services on 12 different days, and there are almost 500 days (or about a year and four months) between first and last contact for the median participant. The median participant receives slightly more employment counseling time, at 160 minutes, than financial counseling, at 120 minutes. Median income supports time is 20 minutes, although this figure includes participants with zero income support time.
+
+#####Table `r tablenum<-tablenum+1; tablenum`: Aggregate program service receipt  
+```{r programservicesummary_table}
+
+Time<-IndividualOutcomes  %>% filter(HighProg==T)  %>% summarize(rmeanr(TimeSpentSum),rmedian(TimeSpentSum),rmeanr(TimeSpentEC),rmedian(TimeSpentEC),rmeanr(TimeSpentFC),rmedian(TimeSpentFC),rmeanr(TimeSpentISC),rmedian(TimeSpentISC)) %>% as.numeric()
+
+Days<-IndividualOutcomes  %>% filter(HighProg==T)  %>% summarize(rmeanr(Days),rmedian(Days),rmeanr(ECDays),rmedian(ECDays),rmeanr(FCDays),rmedian(FCDays),rmeanr(ISCDays),rmedian(ISCDays)) %>% as.numeric()
+
+DaysElapsed<-as.vector(IndividualOutcomes  %>% filter(HighProg==T)  %>% summarize(rmeanr(DaysElapsed),rmedian(DaysElapsed),rmeanr(DaysElapsedEC),rmedian(DaysElapsedEC),rmeanr(DaysElapsedFC),rmedian(DaysElapsedFC),rmeanr(DaysElapsedISC),rmedian(DaysElapsedISC))) %>% as.numeric()
+
+kable(data.frame(Time,Days,DaysElapsed,row.names = c("All programs mean","All programs median","Employment mean","Employment median","Financial mean", "Financial median", "Income Supports mean","Income Supports median")),col.names = c("Time Spent (Minutes)","Individual Days of Contact","Days Elapsed"),row.names = T,digits=0)
+
+rm(list = c("Time","Days","DaysElapsed"))
+```
+
+### Outcome definitions
+
+The outcomes considered in this report fall into three main categories: Employment, Net Income, and Credit. (The FOC data system also tracks balance sheet/net asset outcomes, but these are more volatile data indicators and are not included in the current analysis; they should be considered for future analysis.) For a detailed discussion of how outcome data is captured in the FOC data system see [cite bundling paper].
+
+Outcomes can be considered as events along a timeline or as ultimate program outcomes. Events occur on a specific point along a timeline and may occur more than once over the course of a client's program pathway. Ultimate program outcomes are evaluated over the entire course of the participant's FOC engagement (or over the course of a specific defined time).  Most analyses of the FOC program to date have only looked at the ultimate outcomes; this analysis will attempt to visualize and summarize the events before turning to the ultimate outcomes. Definitions of both senses of the indicators are as follows.
+
+
+#####Table `r tablenum<-tablenum+1; tablenum`: Outcome definitions  
+```{r outcome_expl_table}
+kable(QuarterlyOutcomeVars2[order(QuarterlyOutcomeVars2$Sort),5:7],col.names = c("Indicator","Event definition","Outcome definition"),row.names = F)
+
+```
+
+Outcomes over the course of the program for all participants in the analysis group are as follows. More than three quarters of participants record job placements and net income increases; smaller percentages acquire credit scores or show credit increases. Note that because this analysis group is by definition a more engaged group that is receiving bundled services, these outcomes are generally higher than those reported for the broader group of FOC participants examined in our earlier report. 
+
+#####Table `r tablenum<-tablenum+1; tablenum`: Outcome summaries  
+```{r outcome_summary_table}
+
+kable(rbind(data.frame(apply(X = IndividualOutcomes[which(IndividualOutcomes$HighProg==T),path.outcome.vars[order(QuarterlyOutcomeVars2$Sort[match(path.outcome.vars,QuarterlyOutcomeVars2$IndOutcomesName)])]],MARGIN = 2,FUN = rmeanr),row.names = QuarterlyOutcomeVars2$longname[QuarterlyOutcomeVars2$Outcome!=""][order(QuarterlyOutcomeVars2$Sort[QuarterlyOutcomeVars2$Outcome!=""])]),IncGivenInc=rmeanr(IndividualOutcomes$FICOCh[which(IndividualOutcomes$HighProg==T&IndividualOutcomes$FICOCh>0)]),DecGivenDec=rmeanr(IndividualOutcomes$FICOCh[which(IndividualOutcomes$HighProg==T&IndividualOutcomes$FICOCh<=0)])),col.names = "Mean or Rate",row.names = T)
+```
+
+
+
+##Individual Pathway Examples
+
+What does it mean to say that individuals' pathways through the FOC program are complicated? It may help to show some examples of individual clients' progression through the FOC. Below are the FOC program and outcome pathways of five individuals. Progress through the program is plotted by quarter. At the bottom, the colored bars show minutes of time spent in each service within each quarter, colored by program type (employment is blue, financial coaching is red, and income supports is yellow). The progression of the bars by quarter shows the timing of services received; the colors of the bars show the composition, and the height of the bars shows the intensity of service receipt. The program service sequence is the combination of the timing and composition of the program services.
+
+Above the program service bars are indications of the timing of certain outcome events: job attainment and retention, net income changes, and credit changes. Employment events are in dark blue, net income events in dark red, and credit events in pink. We can see that it's possible for a given outcome event to occur more than once over the course of an individual's time in the program, or for a positive event, like a net income increase, to be followed by a negative event, such as a decrease.
+
+The elements on these charts are the building blocks of the analysis analysis that follows. Our goal in this paper is to simplify these combinations for analysis. First we will look at the timing, sequence, intensity, and combination of program services accessed by FOC clients. Then we will look at the timing and sequences of the outcomes. Finally, we will look at the relationship between patterns of program service delivery and outcomes.
+
+
+
+
+```{r individual_w_outcomes_leg,fig.height=3,fig.width=4}
+par(xpd=T)
+plot.new()
+#text(x=0,y=1,"Individual Pathway Key")
+text(x = 0,y=.9,"Outcome Events")
+legend(legend = QuarterlyOutcomeVars$Var,x = -.15,y=.85,col = QuarterlyOutcomeVars$color,pch=QuarterlyOutcomeVars$symbol,pt.bg=c(QuarterlyOutcomeVars$color[1:6],NA,QuarterlyOutcomeVars$color[8:10]),border=NA,bty="n",cex = .8,ncol = 3)
+par(xpd=F)
+
+
+
+
+```
+
+
+
+
+```{r individual_w_prog_leg,fig.height=3,fig.width=4}
+par(xpd=T)
+plot.new()
+text(x = 0,y=.9,"Program Minutes")
+legend(legend = c("Income Supports","Financial","Employment"),x = -.15,y=.85,fill = c("yellow","red","blue"),bg=c("yellow","red","blue"),border=NA,bty="n",cex = .8)
+par(xpd=F)
+
+
+
+
+```
+
+Participant A spent 30 minutes in employment counseling in their first quarter of enrollment and 60 minutes in financial counseling in their second quarter of enrollment. In the second quarter they registered a net income increase which moved them from negative to positive net income. They did not register any job placements nor any credit score changes, and they had no service time recorded after the second quarter.
+
+#####Figure `r fignum<-fignum+1; fignum`: Time and Outcomes by Quarter,Participant A   
+```{r individual_w_outcomes_A,fig.height=4,fig.width=4}
+FOCPathwayPlotAllQRep(as.character(Type1Samp[2]))
+#mtext(text = "Participant A: Time and Outcomes by Quarter",side = 3,line = 1)
+```
+
+Participant B received three quarters of employment counseling - 45 minutes in the first quarter, 15 minutes in the second quarter, and 45 in the third quarter after enrollment. In the fourth quarter after enrollment, Participant B began receiving financial counseling and stopped receiving employment counseling.  During the second year after enrollment, Participant B received financial counseling in two quarters and registered a net income increase that brought them to positive net income. In the tenth quarter after enrollment - 2 ½ years after beginning the program - Participant B acquired a credit score in the "high" category, above 620 FICO points.
+
+Participants A and B both received bundled services over the course of their time with the FOC, but neither received bundled services within any given quarter with the FOC - in both cases, they started with employment services and moved on to financial counseling.
+
+#####Figure `r fignum<-fignum+1; fignum`: Time and Outcomes by Quarter,Participant B  
+```{r individual_w_outcomes_B,fig.height=4,fig.width=4}
+
+FOCPathwayPlotAllQRep(as.character(Type2Samp[1]))
+#mtext(text = "Participant B: Time and Outcomes by Quarter",side = 3,line = 1)
+
+```
+
+Participant C shows a different pattern, with early bundling and then attachment to employment counseling. Participant C received both employment and financial counseling in their first quarter, then continued to receive employment counseling in each of the next five quarters - through a year and a half of program attachment. In the first quarter, Participant B's net income decreased, but then in the second and fifth quarters, concurrent with a job placement, the participant registered net income increases. Participant B shows credit increases in the first and fourth quarters. (The participant's continued employment was verified in quarter 7, after the last recorded program service delivery.)
+
+#####Figure `r fignum<-fignum+1; fignum`: Time and Outcomes by Quarter,Participant C  
+```{r individual_w_outcomes_C,fig.height=4,fig.width=4}
+
+FOCPathwayPlotAllQRep(as.character(Type3Samp[1]))
+#mtext(text = "Participant C: Time and Outcomes by Quarter",side = 3,line = 1)
+
+```
+
+Participant D has ten total quarters of service with the FOC - two and a half years total. In the first quarter, Participant D received 90 minutes of income support services in the first quarter, attended six financial counseling sessions of 60-90 minutes each, and received an hour of employment counseling. After quarter 1, Participant D continued to receive financial counseling in every quarter until quarter 10, and received employment counseling in all but two quarters. Participant D had a job placement in the fourth quarter after program enrollment and reached positive net income, but registered a slight credit score decrease. Participant D's net income decreased in each of quarters 6 through nine, but remained positive. The participant showed credit score increases in quarters 6 and 10 but ended quarter 10 with a FICO score below 620.
+
+#####Figure `r fignum<-fignum+1; fignum`: Time and Outcomes by Quarter,Participant D  
+```{r individual_w_outcomes_D,fig.height=4,fig.width=4}
+FOCPathwayPlotAllQRep(as.character(Type4Samp[1]))
+#mtext(text = "Participant D: Time and Outcomes by Quarter",side = 3,line = 1)
+```
+
+These participant examples give us some sense of the variation and complexity of FOC clients' experiences in the program. More examples of participant pathways can be found in the appendix.
+
+
+##Program services
+
+###Program enrollment pathways
+
+The concept of a pathway through the FOC program starts with the order in which individuals enroll in the different service areas. Enrollment in a service area is necessary in order for participants to receive services within that subprogram. Within our analysis group, by the end of the analysis time frame, 85% of participants were enrolled in all three program services and about 15% were never enrolled in the income supports service. (By definition, all participants in our analysis group were enrolled in both employment and financial services by the end of the time frame.)
+
+The chart below shows the progression of the analysis group's program enrollment for the first year of their participation in the program. The horizontal axis shows weeks past initial enrollment in the FOC. The vertical axis shows the percentage of the analysis group enrolled in each combination of programs. The number of participants enrolled in all three programs grows throughout the year, but the growth levels off during the second quarter after program enrollment.
+
+Many participants are enrolled in multiple programs in their very first week at the FOC - 33% are enrolled in all three programs in the first week and another 36% start in some combination of two programs (the most common being EC+FC). The percent of those with a full bundle rises rapidly over the first three months of enrollment, but grows only slowly thereafter. 
+
+(Throughout this report, employment services are coded as blue, financial as red, and income support services are yellow.)
+
+#####Figure `r fignum<-fignum+1; fignum`: Program Enrollment by Week, First Year of Enrollment  
+```{r enrollmentsequencedist_2}
+seqdplot(ProgStates.High.seq,border=NA,withlegend=F,cex.plot=.6,ylab=NA,xaxis=F,yaxis=F)
+axis(side = 2,at = c(0,.25,.5,.75,1),tick = T,labels = c(NA,"25%","50%","75%","100%"),las=2,pos = -1,cex.axis=.6)
+axis(side = 1,at = c(0,26,52),tick = F,labels = c("Week 1","Week 26","Week 52"),pos=0,cex.axis=.6)
+seqlegend(ProgStates.High.seq,position = "center",bty='n',fontsize = .8,border=NA)
+```
+
+The next chart shows the most common progressions of program enrollment. The horizontal axis shows the three possible stages of program enrollment an individual could progress through (if the individual starts out enrolled in two programs, only two stages are possible; if the individual starts in all three programs only one stage is possible). The vertical axis shows the cumulative percent of individuals in each enrollment sequence. About 40 percent of clients experience no state change at all; they begin the program enrolled in the core (EC + FC) or full bundle and never add any other program. Otherwise, the most common state changes are cases where participants start with a partial bundle - FC + ISC, EC + FC, or EC + ISC - and proceed to the full bundle.  
+
+#####Figure `r fignum<-fignum+1; fignum`: Sequences by proportion  
+```{r enrollmentsequenceorderfrequency_3,fig.height=5,fig.width=5}
+seqfplot(ProgStates.High.Seq.timeag,withlegend=F,tlim=1:20,cex.plot=.8,ylab="Cumulative frequency",yaxis=F,xaxis=F,cex.legend=.6,border=NA)
+axis(side = 1,at = c(.5,1.5,2.5),tick = F,labels = c("State 1", "State 2", "State 3"),pos=0,cex.axis=.6)
+```
+
+
+
+###Bundling within quarters
+
+Once participants enroll in a program, they begin accessing program services. FOC staff members record the time spent with clients in each of the three service areas. We can examine the utilization of different service areas and the timing of those services. Recall the individual service pathways shown on page XX. Those charts show the time spent within each service area by each participant within each quarter. For the chart below, we aggregate participants' utilization of different program combinations by quarter by counting the number of participants accessing each type of program service bundle within a given quarter. The height of the bars is the total number of participants receiving any service in the quarter, and the height of each colored segment is the number of participants accessing that bundle. Participant D, for instance, utilized all three services in Quarter 1, so they would be included in the grey segment in the first quarter. In Quarter 2, Participant D utilized financial and employment services, so in Quarter 2 they would show up in the purple segment.
+
+Total participant counts go down as the quarters progress, which is expected. We also see that participants are much more likely to access bundled services during the first quarter of program participation; after the first quarter the share of participants accessing employment services alone or financial counseling services alone increases, perhaps as participants focus on particular issues or space out their FOC utilization. Utilization of income support services, alone or in combination (yellow, orange, green, or grey), decreases after the first quarter, as is expected given the more time-limited nature of the income support program, which screens participants for eligibility and connects them to income supports but does not involve a long-term coaching relationship.
+
+#####Figure `r fignum<-fignum+1; fignum`: Participant Counts by Quarter and Bundle  
+```{r bundling_within_quarters_4,fig.height=5,fig.width=5}
+#counts
+barplot(t(program.timebyQuarter.some[,14:20]),beside = F,col=c("yellow","red","blue","orange","green","purple","darkgrey"),names.arg = c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),ylim = c(0,5000),border = NA,xlab = "Quarters",ylab="Number of Participants",cex.axis = .8)
+legend(legend = levels(IndividualOutcomes$ProgramMix),x = "right",fill = c("yellow","red","blue","orange","green","purple","darkgrey"),bg=c("yellow","red","blue","orange","green","purple","darkgrey"),border=NA,bty="n",cex = .8)
+
+```
+
+
+####Service receipt within each program
+
+Next we can look at time spent by program and quarter. This gives us a measure of intensity of services received by clients. The following charts show the total time spent within each quarter for each program. The chart on the left shows the number of participants served by each program in each quarter; the chart on the right shows the mean time recorded for those receiving services in that program (the numerator is total minutes spent in the program, and the denominator is the participant count from the first chart). All service types show a dropoff in participants registering time spent after the first quarter, but the dropoff is steeper for financial and income supports services than for employment. Income support service utilization drops by `r 100*round((program.timebyQuarter.some$ISCParticipants[1]-program.timebyQuarter.some$ISCParticipants[2])/program.timebyQuarter.some$ISCParticipants[1],2)`% after the first quarter. Financial counseling utilization drops by `r 100*round((program.timebyQuarter.some$FCParticipants[1]-program.timebyQuarter.some$FCParticipants[2])/program.timebyQuarter.some$FCParticipants[1],2)`%  after the first quarter, then levels off before dropping more gradually in later quarters. Employment counseling utilization shows a more gradual decline across quarters. We can speculate that the causes for the dropoff in service utilization are different across programs: for income supports, the program model involves more limited attachment, and for employment services, participants might be likely to disengage or at least access fewer services after finding a job placement. Because it's less plausible that financial counseling participants have reached their financial goals within the first few quarters in which the dropoff is most severe, it seems somewhat more likely that this dropoff might be explained by other barriers such as lack of time or lack of motivation or satisfaction with services.
+
+Average time spent also drops off after the first quarter, then levels off. While the average time spent increases in the very last quarter for FC and EC, note that very few individuals are represented in that calculation.
+
+#####Figure `r fignum<-fignum+1; fignum`: Participants and Mean Time Spent by Bundle and Quarter  
+```{r service_counts_means_by_program_5}
+
+barplot(program.timebyQuarter.some$Participants,names.arg = c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),ylim = c(0,5000),col = "black",border = NA,main = "Participant Counts\nAll Programs",ylab = "Individuals",cex.main=.8,cex.lab = .8,cex.axis = .7,cex.names = .7)
+barplot(program.timebyQuarter.some$MeanTime,names.arg = c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),ylim = c(0,100),col = "black",border = NA,main = "Mean Time\nper Participant",ylab = "Minutes",cex.main=.8,cex.lab = .8,cex.axis = .7,cex.names = .7)
+
+barplot(program.timebyQuarter.some$ISCParticipants,names.arg = c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),ylim = c(0,5000),col = "yellow",border = NA,main = "Participant Counts\nwith ISC Time",ylab = "Individuals",cex.main=.8,cex.lab = .8,cex.axis = .7,cex.names = .7)
+barplot(program.timebyQuarter.some$MeanISCTime,names.arg = c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),ylim = c(0,100),col = "yellow",border = NA,main = "ISC Mean Time\nper Participant",ylab = "Minutes",cex.main=.8,cex.lab = .8,cex.axis = .7,cex.names = .7)
+
+barplot(program.timebyQuarter.some$FCParticipants,names.arg = c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),ylim = c(0,5000),col = "red",border = NA,main = "Participant Counts\nwith FC Time",ylab = "Individuals",cex.main=.8,cex.lab = .8,cex.axis = .7,cex.names = .7)
+barplot(program.timebyQuarter.some$MeanFCTime,names.arg = c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),ylim = c(0,100),col = "red",border = NA,main = "FC Mean Time\nper Participant",ylab = "Minutes",cex.main=.8,cex.lab = .8,cex.axis = .7,cex.names = .7)
+
+
+barplot(program.timebyQuarter.some$ECParticipants,names.arg = c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),ylim = c(0,5000),col = "blue",border = NA,main = "Participant Counts\nwith EC Time",ylab = "Individuals",cex.main=.8,cex.lab = .8,cex.axis = .7,cex.names = .7)
+barplot(program.timebyQuarter.some$MeanECTime,names.arg = c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),ylim = c(0,100),col = "blue",border = NA,main = "EC Mean Time\nper Participant",ylab = "Minutes",cex.main=.8,cex.lab = .8,cex.axis = .7,cex.names = .7)
+
+
+
+
+```
+
+
+
+
+## Outcomes  
+
+
+
+###Timing of outcome by quarter
+
+As with the program service delivery, the timing of outcome events varies by individual. The following charts show the counts of individuals registering a given event within each quarter from program enrollment. (As we saw above, an individual may register a given event in more than one quarter.) Generally the credit events lag the placement and net income events, as of course do the retention markers. Program staff are trained to pull clients' credit report every six months, and we can make out the effect of this "best practice" of six-month credit pulls in the credit-related events.
+
+#####Figure `r fignum<-fignum+1; fignum`: Individuals with Outcome by Quarter  
+```{r outcome_timing_charts}
+for(i in 1:length(QuarterlyOutcomeVars$Var)){
+  tempvar<-QuarterlyOutcomeVars$Var[i]
+  tempdata<-get(paste0(QuarterlyOutcomeVars$Category[i],".",tempvar,"byQuarter.ind"))
+  tempdata<-tempdata[which(tempdata$SitePartic %in% IndividualOutcomes$SitePartic[which(IndividualOutcomes$HighProg==T)]),]
+  tempbpdata<-aggregate(as.formula(paste0(tempvar,"~QuarterFromFirst")),tempdata,sum)
+  barplot(tempbpdata[1:18,2],main=QuarterlyOutcomeVars$longname[i],names.arg = c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),cex.names = .7,cex.axis=.7,col = QuarterlyOutcomeVars$color[i],cex.main=.8,border=NA ,ylab = "Individuals",cex.lab = .8)
+}
+
+```
+
+
+
+
+
+###Outcome sequences
+
+One way to consider the relationship between the timing of program services and the timing of outcome events is to stylize the sequences into ordered events - as we did above with the program enrollment sequences. There are too many types of events to include them all in a stylized sequence - the combinations would become very complex. However, if we narrow to the key positive events in our three outcome domains, here defined as a job placement, a net income increase, and a credit score increase, we can see which outcome order sequences are most common. The table below shows the frequency of different sequences of program outcomes, starting with the most frequent. The majority of participants register outcomes in the order we would expect: most have a job placement first, followed by a net income increase and then, for a smaller group of participants, a credit score increase. The three categories of outcomes sequences which start with a job placement account for about two-thirds of all participants.
+
+#####Table `r tablenum<-tablenum+1; tablenum`: Outcome sequence counts  
+```{r outcome_sequences_counts}
+
+foc.outcomes.short.collapsed.wide  %>% group_by(stringcleanother)  %>% summarize(total=n()) %>% mutate(freq=total/sum(total))  %>% arrange(-total) %>% kable(col.names = c("Outcome order","Participants","Frequency"),digits=2,row.names = T)
+```
+
+
+The chart below shows the total time spent in each of the three programs by outcome sequence (outcome sequence numbers on this chart correspond to the numbers in Table 4.) There is no clear relationship between the time spent in each service and the sequence of outcomes registered, although the lower frequency sequences seem to have higher amounts of time spent.
+
+#####Figure `r fignum<-fignum+1; fignum`: Time Spent by Outcome Sequence and Program Type  
+```{r outcome_sequences_counts_plot,fig.height=5,fig.width=5}
+foc.outcomes.short.collapsed.wide  %>% group_by(stringcleanother)  %>% summarize(total=n(),MeanEC=rmeanr(TimeSpentEC),MeanFC=rmeanr(TimeSpentFC),MeanISC=rmeanr(TimeSpentISC))  %>% arrange(-total) %>% select(MeanEC,MeanFC,MeanISC) %>% t() %>% barplot(col=c("blue","red","yellow"),names.arg=1:12,cex.names=.8,cex.axis=.8,xlab = "Outcome Sequence",ylab = "Minutes",cex.lab = .8,border=NA)
+```
+
+
+### Patterns of service time
+
+
+We'd like to be able to explain final participant outcomes in terms of the order and intensity of the services they receive. So far we have been able to see service combinations (or bundles) and timing (Figure 7), and service intensity and timing (Figure 8). But we have not yet considered intensity, bundling, and timing together to look at the sequence of services received for each individual. To do this we need to create categories of program bundles and service intensity, and look at individuals' membership in these categories over time. To simplify analysis, we narrow to the "core" bundle of employment and financial counseling and omit the income support services, which are a small proportion of the total service time recorded and tend to follow a predictable pattern of higher service receipt at the beginning of the service pathway.  
+
+For each participant, time spent in each quarter in each of Employment and Financial Counseling is summed. The time in each program is categorized into high or low based on minutes spent, resulting in four possible categories:
+
+* Low EC, Low FC  
+* High EC, Low FC  
+* Low EC, High FC  
+* High EC, High FC  
+
+
+
+Below are visualizations of the change in program service receipt categories over time. The first chart shows cumulative services received over the 18 quarters in the dataset, that is, the accumulated minutes in each of Employment Counseling and Financial Counseling. If total accumulated minutes in Employment through a given quarter are greater than 60, the participant is categorized as "High EC;" otherwise they are categorized as "Low EC." The same is true for FC.  The heights of the bars in each quarter show the percentage of participants in each category. The colors maintain our EC-blue, FC-red color scheme: the light purple is low  EC & FC, the bluer purple is high EC/low FC, the redder purple is low EC/high FC, and the bright purple is high EC & FC. As time passes, more individuals move from low to high categories, the natural effect of cumulative counting. This chart shows that by the end of their time at the FOC, most participants in the analysis group receive at least 60 minutes of service in at least one of EC or FC, with about half receiving at least 60 minutes in both programs.
+
+#####Figure `r fignum<-fignum+1; fignum`: Cumulative Program Time: High/Low break 60 min  
+```{r proghilo_cumul_60}
+seqdplot(ProgTimeHighLow.seq.cumul.60min, ylab=NA,yaxis=F, xaxis=F ,cex.plot=.6, border=NA,withlegend=F)
+axis(side = 2,at = c(0,.25,.5,.75,1),tick = T,labels = c(NA,"25%","50%","75%","100%"),las=2,pos = -.5,cex.axis=.6)
+axis(side = 1,at = c(1,5,9,13,17),tick = F,labels = c("Q 1","Q 5","Q 9","Q 13","Q 17"),pos=0,cex.axis=.6)
+
+seqlegend(ProgTimeHighLow.seq.60min,position = "center",bty='n',fontsize = .8)
+```
+
+The next chart again shows cumulative service receipt, but now the high/low break is set at 120 minutes. Under this definition fewer participants move into the "high" categories over time.
+
+#####Figure `r fignum<-fignum+1; fignum`:  Cumulative Program Time: High/Low break 120 min 
+```{r proghilo_cumul_120}
+seqdplot(ProgTimeHighLow.seq.cumul.120min, ylab=NA,yaxis=F,xaxis=F ,cex.plot=.6, border=NA,withlegend=F)
+axis(side = 2,at = c(0,.25,.5,.75,1),tick = T,labels = c(NA,"25%","50%","75%","100%"),las=2,pos = -.5,cex.axis=.6)
+axis(side = 1,at = c(1,5,9,13,17),tick = F,labels = c("Q 1","Q 5","Q 9","Q 13","Q 17"),pos=0,cex.axis=.6)
+
+```
+
+The cumulative charts show how individuals progress towards their ultimate total service utilization - the numbers summarized in Table X. But in order to look at sequences of program receipt, we need to look at the amount of service time recorded within each quarter, rather than the cumulative time spent. This allows a client to land in a different category in each quarter rather than always either staying in the same category or ratcheting up to a higher category. Because we are only looking at the time within quarters, not cumulative time, our high/low break needs to be lower; here it is set at 30 minutes. The chart below shows high levels of investment early on, with the majority of participants in the "high" category for at least one of EC or FC in the first quarter, and about half in the high category for both services in the first quarter. As expected, there is a tapering off of time spent as the quarters pass.
+
+(Note that individuals receiving 0 minutes of service are included in the "low" categories.)
+
+#####Figure `r fignum<-fignum+1; fignum`: Program Time per Quarter: High/Low break 30 min  
+```{r proghilo_clusters}
+seqdplot(ProgTimeHighLow.seq.30min, ylab=NA,yaxis=F,xaxis=F ,cex.plot=.6, border=NA,withlegend=F)
+axis(side = 2,at = c(0,.25,.5,.75,1),tick = T,labels = c(NA,"25%","50%","75%","100%"),las=2,pos = -.5,cex.axis=.6)
+axis(side = 1,at = c(1,5,9,13,17),tick = F,labels = c("Q 1","Q 5","Q 9","Q 13","Q 17"),pos=0,cex.axis=.6)
+
+```
+
+
+
+ 
+This last definition of high/low service receipt within quarters allows us to examine patterns of service receipt over time by comparing individuals' service sequences. Because patterns of service receipt are complex, a cluster analysis approach is appropriate. Cluster analysis allows us to group participants who are similar to each other in their program service receipt. We need to take into account both the category an individual falls into in each quarter and the progression of those categories over time. This progression of categories can be thought of as each individual's service receipt state sequence: over 18 quarters, the individual registers one of the four states for each quarter, creating a program-long sequence of length 18. For example, Participant D's sequence from page XX would look like this:
+
+```{r example_sequence_D}
+ProgTimeHighLow.seq.30min[which(programtime.highlow.QStates$SitePartic==as.character(Type4Samp[1])),]
+```
+
+
+
+State sequence analysis allows us to characterize the similarity or difference of sequences by calculating the pairwise distances between sequences. Sequence distances can be thought of as the number of changes that would have to be made to transform one individual's service sequence into another individual's sequence (akin to the word game where you see how few steps you can use to go from "cat" to "dog," changing one letter at a time: "cat-cot-cog-dog"). Distances are calculated between each pair of individuals and then cluster analysis is used to create groups of individuals that are closer to each other within groups and further from individuals in other groups. Here we use a Ward hierarchical cluster analysis specifying four groups. [^2: The cluster analysis was performed on the categorization of time spent per quarter; cumulative time spent was not used because the ratcheted progressions mean that the groupings simply mirror the end state group membership. The clustered state sequence analysis used here is based on techniques described in Gabadinho, A., G. Ritschard, N.S. Muller and M. Studer (2011): Analyzing and Visualizing State Sequences in R with TraMineR. Journal of Statistical Software, 40 (4), 37. All data analysis was conducted in R: R Core Team (2016). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria.  
+ ] 
+
+Under this procedure, the four groups or types created can be visualized as follows:  
+
+#####Figure `r fignum<-fignum+1; fignum`: Program Time per Quarter by Type  
+```{r proghilo_types,fig.height=6,fig.width=6}
+seqdplot(ProgTimeHighLow.seq.30min,group=cl1.4fac.30min,ylab=NA, cex.plot=.6, cex.main=.6 ,border=NA,withlegend=F,xtlab=c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA))
+
+```
+
+
+* Type 1: Individuals with high bundling or high FC in the first quarter, then a dropoff in service utilization in later quarters
+* Type 2: Individuals with high bundling or high EC in the first quarter and a slower dropoff in service utilization with emphasis on employment counseling
+* Type 3: Individuals with high bundling or high EC in the first quarter and a continued long term emphasis on EC
+* Type 4: Individuals with high bundling or high FC in the first quarter and a continued long term emphasis on FC
+
+Our individual participant examples on pages X-X are randomly sampled from these types: Participant A is an example of Type 1, Participant B is Type 2, etc.
+
+####Outcome attainment
+
+To see if these groups make a difference for client outcomes, we can compare outcomes across groups. The tables below show employment, net income, and credit outcomes for each of the four groups above as well as the "low attachment" clients not included in our analysis group. All types in our "some engagement" group had better outcomes in placement, retention, and credit increase or score attainment than the low attachment group. Types 3, which had higher long term attachment to employment counseling services, the highest placement rates. However, Type 4, which had higher levels of long term financial counseling, had the best retention rate and higher FICO increases. (Type 4 was also the smallest group; see the appendix for the participant counts considered for each outcome.) 
+
+
+####Table `r tablenum<-tablenum+1; tablenum`: Outcome summary by cluster type  
+**Percentage of clients achieving outcome (average value for Net Income Change and FICO Change)**  
+*Group comparisons (chi squared or anova): all but net income increase are significant at .05*
+
+```{r clustertype_outcomes_means_table}
+
+kable(sweep(Clusteroutcomes.allenrolled.30min.4group.means,2,STATS = c(100,100,1,100,1,100,100),FUN = "*"),col.names = c("Placement","Retention","Net Income Change ($)","Had Net Income Increase", "FICO Change (pts)","Had FICO Increase","Became Scored"),digits = c(0,0,0,0,1,0,0))
+
+```
+
+
+
+Linear models (OLS for the continuous outcomes & logits for the binary outcomes), including demographic variables as covariates, were also run for each of these outcomes; the positive effects of group membership demonstrated in the above tables remains. Results of the linear models are included in the appendix. Alternate approaches to clustering were considered, including increasing the number of clusters and increasing the granularity of time periods (months rather than quarters) in the early portion of the program. Results were similar, and the more granular time approach did not have greater explanatory power in the linear models.
+
+
+
+## Next steps
+This report lays the groundwork for further analysis of FOC client pathways by characterizing the sequences of program service utilization and outcome events. It provides preliminary evidence that patterns of program service utilization affect ultimate participant outcomes, albeit in ways that may seem predictable: clients with longer term and more intensive program engagement see greater gains. Directions for further analysis include:
+
+*	Examine drivers of attachment: which clients make it into the "attached" program group?  
+* Include intensity measures for outcome events  
+*	Examine the relationship between specific program services ("story efforts" in ETO) and participant outcomes  
+*	Consider site or market level variation in program service patterns and outcomes  
+*	Analyze individual budget component drivers of net income change  
+*	Conduct survival analysis for outcomes  
+
+## Conclusion
+Financial Opportunity Centers provide individualized program delivery to low-income individuals. This study describes patterns of service utilization and makes a first attempt at connecting them to outcomes. Among the findings:
+
+* Most participants enroll in bundled services within the first four weeks, but some participants continue to add programs through the first year of enrollment.
+* Participants are more likely to access multiple services types in their first quarter of program enrollment, and in later quarters are more likely to access single service types within quarters even if they are continuing to bundle services across quarters.
+* All programs show drops in utilization after the first quarter; the steepest is ISC (which is expected), and the most gradual is employment services. 
+* Outcome timing: Placements and net income increases are most likely to be registered in the first quarter; retention and credit outcomes are more likely to be observed in later quarters. All outcomes continued to be registered for small subsets of participants even two or more years after program enrollment.
+* Via cluster analysis, we can identify types of participant program utilization and find that participants with higher levels of attachment and utilization of employment and financial services over longer periods of time have higher placement, retention and credit outcomes.
+
+
+The complexity and variation of participants' experiences in the Financial Opportunity program are inherent to the program design. This study advances our understanding of how participants proceed through the program and provides a framework for thinking about program outcomes through the lens of program timing, intensity, bundling, and sequences.
+
+***
+
+
+##Appendix
+
+###Narrowing to the analysis dataset
+The full dataset of all enrolled individuals includes `r nrow(IndividualOutcomes)` participants. Of these, `r with(IndividualOutcomes,sum(ProgramMix %in% levels(ProgramMix)[1:3]))` individuals, or `r round(100*with(IndividualOutcomes,sum(ProgramMix %in% levels(ProgramMix)[1:3])/nrow(IndividualOutcomes)),0)`%, were enrolled in only one of the three program service areas provided by FOCs (Employment, Financial, and Income Supports). Many of these individuals were receiving targeted income support services such as help with ACA enrollment; others sought employment or financial services from the FOCs but declined to follow through on engaging with the full bundled service model. Another `r with(IndividualOutcomes,sum(ProgramMix %in% levels(ProgramMix)[4:5]))` individuals, or `r round(100*with(IndividualOutcomes,sum(ProgramMix %in% levels(ProgramMix)[4:5])/nrow(IndividualOutcomes)),0)`%, were enrolled in both Income Supports and either Financial or Employment services - again, potentially receiving appropriate services, but not the full FOC model. These program uptake rates are similar to those seen in the Economic Mobility impact study.
+
+The remaining `r with(IndividualOutcomes,sum(ProgramMix %in% levels(ProgramMix)[6:7]))`, or `r round(100*with(IndividualOutcomes,sum(ProgramMix %in% levels(ProgramMix)[6:7])/nrow(IndividualOutcomes)),0)`%,
+of individuals were enrolled in both Financial and Employment services, and about 70% of those individuals were enrolled in Income Support services as well. Within this group, `r with(IndividualOutcomes,rsum((ProgramMix %in% levels(ProgramMix)[6:7])&TimeSpentEC>0&TimeSpentFC>0))`, or  `r round(100*with(IndividualOutcomes,rsum((ProgramMix %in% levels(ProgramMix)[6:7])&TimeSpentEC>0&TimeSpentFC>0)/sum(ProgramMix %in% levels(ProgramMix)[6:7])),0)`%, have time recorded in both EC and FC (`r 100*rmeanr(with(IndividualOutcomes[which(IndividualOutcomes$ECEnrolled==T&IndividualOutcomes$FCEnrolled==T),],InContactsFile==F))`% don't have data available on program service time; `r 100*rmeanr(with(IndividualOutcomes[which(IndividualOutcomes$ECEnrolled==T&IndividualOutcomes$FCEnrolled==T&IndividualOutcomes$InContactsFile==T),],TimeSpentEC==0&TimeSpentFC==0))`% have zero time recorded in both EC and FC; `r 100*rmeanr(with(IndividualOutcomes[which(IndividualOutcomes$ECEnrolled==T&IndividualOutcomes$FCEnrolled==T&IndividualOutcomes$InContactsFile==T),],TimeSpentEC>0&TimeSpentFC==0))`% have time in EC but zero time in FC, and `r 100*rmeanr(with(IndividualOutcomes[which(IndividualOutcomes$ECEnrolled==T&IndividualOutcomes$FCEnrolled==T&IndividualOutcomes$InContactsFile==T),],TimeSpentEC==0&TimeSpentFC>0))`% have time in FC but zero time in EC). Within the group that does have time recorded in both EC and FC, `r 100*rmeanr(with(IndividualOutcomes[which(IndividualOutcomes$ECEnrolled==T&IndividualOutcomes$FCEnrolled==T&IndividualOutcomes$TimeSpentEC>0&IndividualOutcomes$TimeSpentFC>0),],HasAnyBudget))`% have at least one budget recorded, `r 100*rmeanr(with(IndividualOutcomes[which(IndividualOutcomes$ECEnrolled==T&IndividualOutcomes$FCEnrolled==T&IndividualOutcomes$TimeSpentEC>0&IndividualOutcomes$TimeSpentFC>0),],HasAnyUpdate))`% have at least one budget update recorded, but only `r 100*rmeanr(with(IndividualOutcomes[which(IndividualOutcomes$ECEnrolled==T&IndividualOutcomes$FCEnrolled==T&IndividualOutcomes$TimeSpentEC>0&IndividualOutcomes$TimeSpentFC>0),],HasAnalysisUpdate))`% have what we are considering an "analysis quality budget" recorded. This final group consists of `r sum(IndividualOutcomes$HighProg)` individuals - about 10% of participants appearing in the full dataset.
+
+
+#####Table `r tablenum<-tablenum+1; tablenum`: Participant Counts by LISC Market  
+```{r countsbymarket_table}
+
+IndividualOutcomes  %>% group_by(SitesMarkets$LISC.MARKET[match(SITE,SitesMarkets$Short.Name.for.Data.Analysis)])  %>% summarize(FirstEnrolled=min(EarliestEnrolled),Participants=sum(Count),PathwaysAnalysis=sum(HighProg), PercPathways=round(sum(HighProg)/sum(Count),2))  %>% kable(col.names = c("Site","First Enrollment","Total Enrolled","Pathways Analysis","Percent"))
+```
+
+
+
+#####Table `r tablenum<-tablenum+1; tablenum`: Counts of clients considered for each outcome (reflects group size and data availibility)  
+```{r clustertype_outcomes_Ns}
+kable(Clusteroutcomes.allenrolled.30min.4group.Ns,col.names = c("Placement","Retention","Net Income Change ($)","Had Net Income Increase", "FICO Change (pts)","Had FICO Increase","Became Scored"))
+```
+
+###Outcome sequences and program service types
+
+The outcome sequences identified on page XX did not seem to be related to total program service time in each category. But now that we have the program service cluster types, we can see whether the sequence of outcome attainment is related to the program service cluster. The following chart shows the percent of each of the top four outcome sequence groups represented by each cluster type.
+
+
+#####Figure `r fignum<-fignum+1; fignum`: Outcome Sequence by Cluster Type 
+```{r}
+outcomeseqwcl<-merge(IndividualOutcomes[,c("SitePartic","cl1.4fac.30min")],foc.outcomes.short.collapsed.wide[,c("SitePartic","stringcleanother")],by="SitePartic")
+
+outcomeseqbycl<-with(outcomeseqwcl,table(stringcleanother,cl1.4fac.30min))
+outcomeseqbycl.names<-rownames(outcomeseqbycl)
+outcomeseqbycl.names.brks<-str_replace_all(outcomeseqbycl.names,"-","\n-")
+outcomeseqbycltot<-apply(outcomeseqbycl,MARGIN = 1,FUN = sum)
+outcomeseqbyclperc<-sweep(outcomeseqbycl,1,STATS = outcomeseqbycltot,FUN = "/")
+
+barplot(t(outcomeseqbyclperc[order(-outcomeseqbycltot),2:5][1:5,]),horiz = F,las =1,cex.names = .5,beside=F,names.arg = outcomeseqbycl.names.brks[order(-outcomeseqbycltot)][1:5],axes=F,col = c("#ECE0F8","#BCA9F5","#8258FA","#CC2EFA"),border=NA,cex.axis = .6,xlab = "Outcome Sequences",cex.lab=.8)
+axis(side = 2,at = c(0,.25,.5,.75,1),tick = T,labels = c(NA,"25%","50%","75%","100%"),las=2,pos = 0,cex.axis=.6)
+plot.new()
+legend(x = "left",legend = colnames(outcomeseqbyclperc)[2:5],fill = c("#ECE0F8","#BCA9F5","#8258FA","#CC2EFA"),cex = .7,border = NA,bty = "n")
+```
+
+These charts visualizes the program utilization sequence for the top 5 outcome sequences.
+
+#####Figure `r fignum<-fignum+1; fignum`: Program Utilization by Outcome Sequence  
+```{r hiloseq_outcome}
+topoutcomeseq<-c("Placement->NetIncIncrease","Placement->NetIncIncrease->CrIncrease","Placement","NetIncIncrease","NetIncIncrease->Placement")
+for(i in 1:5){
+    seqdplot(ProgTimeHighLow.seq.30min[which(foc.outcomes.short.collapsed.wide$stringclean[match(programtime.highlow.QStates$SitePartic,foc.outcomes.short.collapsed.wide$SitePartic)]==topoutcomeseq[i]),],border=NA,withlegend=F,xtlab=c("Q 1",rep(NA,3),"Q 5",rep(NA,3),"Q 9",rep(NA,3),"Q 13",rep(NA,3),"Q 17",NA),title=topoutcomeseq[i],cex.main=.6,cex.plot=.6)
+
+}
+
+```
+
+
+###Linear models
+
+Below are the coefficients, standard errors, z values, and p values for the linear models predicting each outcome from the cluster group. The models control for an array of demographic characteristics. Reference levels for categorical variables are as follows:
+
+```{r}
+kable(data.frame(c("Cluster type (cl1.4fac.30min)","Gender","RaceEthnicity","CriminalConvictions","LivingArrangement"),c(levels(outcomes.ECHighLowtypes$cl1.4fac.30min)[1],levels(outcomes.ECHighLowtypes$Gender)[1],levels(outcomes.ECHighLowtypes$RaceEthnicity)[1],levels(outcomes.ECHighLowtypes$CriminalConvictions)[1],levels(outcomes.ECHighLowtypes$LivingArrangement1)[1])),col.names = c("Variable","Reference Level"))
+```
+
+
+```{r linear_models}
+for (i in 1:length(path.outcome.vars)) {
+
+  if(AllVars$Type[match(path.outcome.vars[i],AllVars$Name)]=="boolean"){
+  print(kable(data.frame(summary(glm(outcomes.ECHighLowtypes[,path.outcome.vars[i]]~outcomes.ECHighLowtypes$cl1.4fac.30min+outcomes.ECHighLowtypes$Age+outcomes.ECHighLowtypes$Gender+outcomes.ECHighLowtypes$RaceEthnicity+outcomes.ECHighLowtypes$CriminalConvictions+outcomes.ECHighLowtypes$LivingArrangement1,family=binomial))$coefficients,row.names = str_replace(string = rownames(summary(glm(outcomes.ECHighLowtypes[,path.outcome.vars[i]]~outcomes.ECHighLowtypes$cl1.4fac.30min+outcomes.ECHighLowtypes$Age+outcomes.ECHighLowtypes$Gender+outcomes.ECHighLowtypes$RaceEthnicity+outcomes.ECHighLowtypes$CriminalConvictions+outcomes.ECHighLowtypes$LivingArrangement1,family=binomial))$coefficients),pattern = "outcomes\\.ECHighLowtypes\\$",replacement = "")),digits = 2,col.names = c("Estimate","Std. Error","z value","p value"),caption = path.outcome.vars[i]))
+  }
+ else{
+   print(kable(data.frame(summary(lm(outcomes.ECHighLowtypes[,path.outcome.vars[i]]~outcomes.ECHighLowtypes$cl1.4fac.30min+outcomes.ECHighLowtypes$Age+outcomes.ECHighLowtypes$Gender+outcomes.ECHighLowtypes$RaceEthnicity+outcomes.ECHighLowtypes$CriminalConvictions+outcomes.ECHighLowtypes$LivingArrangement1))$coefficients,row.names = str_replace(string = rownames(summary(lm(outcomes.ECHighLowtypes[,path.outcome.vars[i]]~outcomes.ECHighLowtypes$cl1.4fac.30min+outcomes.ECHighLowtypes$Age+outcomes.ECHighLowtypes$Gender+outcomes.ECHighLowtypes$RaceEthnicity+outcomes.ECHighLowtypes$CriminalConvictions+outcomes.ECHighLowtypes$LivingArrangement1))$coefficients),pattern = "outcomes\\.ECHighLowtypes\\$",replacement = "")),digits = 2,col.names = c("Estimate","Std. Error","z value","p-value"),caption = path.outcome.vars[i]))
+ } 
+  cat("\n")
+}
+```
+
+###Individual Sequence Examples
+
+**Type 1**  
+```{r}
+for(i in 1:8){
+  FOCPathwayPlotAllQRep(as.character(Type1Samp[i+2]))
+}
+```
+
+**Type 2**  
+```{r}
+for(i in 1:8){
+  FOCPathwayPlotAllQRep(as.character(Type2Samp[i+2]))
+}
+```
+
+
+**Type 3**  
+```{r}
+for(i in 1:8){
+  FOCPathwayPlotAllQRep(as.character(Type3Samp[i+2]))
+}
+```
+
+**Type 4**  
+```{r}
+for(i in 1:8){
+  FOCPathwayPlotAllQRep(as.character(Type4Samp[i+2]))
+}
+```
+
+
+```{r hiloseq_demo}
+# seqdplot(ProgTimeHighLow.seq.30min,group=IndividualOutcomes$Gender[match(programtime.highlow.QStates$SitePartic,IndividualOutcomes$SitePartic)],border=NA,withlegend=F,xtlab=1:18)
+# seqdplot(ProgTimeHighLow.seq.30min,group=IndividualOutcomes$RaceEthnicity[match(programtime.highlow.QStates$SitePartic,IndividualOutcomes$SitePartic)],border=NA,withlegend=F,xtlab=1:18)
+# seqdplot(ProgTimeHighLow.seq.30min,group=IndividualOutcomes$CriminalConvictions[match(programtime.highlow.QStates$SitePartic,IndividualOutcomes$SitePartic)],border=NA,withlegend=F,xtlab=1:18)
+# seqdplot(ProgTimeHighLow.seq.30min,group=IndividualOutcomes$LivingArrangement1[match(programtime.highlow.QStates$SitePartic,IndividualOutcomes$SitePartic)],border=NA,withlegend=F,xtlab=1:18)
+# seqdplot(ProgTimeHighLow.seq.30min,group=IndividualOutcomes$RecodedMaritalStatus[match(programtime.highlow.QStates$SitePartic,IndividualOutcomes$SitePartic)],border=NA,withlegend=F,xtlab=1:18)
+
+```
+
+
