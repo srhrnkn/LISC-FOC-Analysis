@@ -385,7 +385,7 @@ OutcomeDF<-function(df,depvars,deptypes,indvar){
   tempdf
 }
 
-#Analysis prior to matching
+#Analysis prior to matching####
 
 #Get list of TA analysis outcome vars. Can always change/add to this. 
 
@@ -403,7 +403,7 @@ sixmonthly.ta.ch.bycomplTA<-OutcomeDF(ta.ch,sixmonthly.ta.outcomevars,sixmonthly
 
 
 ##Create matched comparison groups####
-#start counter - this is so can store results & their iteration number
+#start counter - this is so can store results & their iteration number - these are in object called matchiter - can always check back to see what filter, ind var, dep vars each iteration used. (All of this would prob be easier with broom!)
 #matchiternum<-1
 #start data frame
 #matchiter<-data.frame(Iter=matchiternum,Vars=paste("'",ta.matchvars,collapse="','","'"),Treatment="is.completed",Notes="",Filter="")
@@ -418,7 +418,7 @@ sixmonthly.ta.ch.bycomplTA<-OutcomeDF(ta.ch,sixmonthly.ta.outcomevars,sixmonthly
 
 
 #increment counter up
-matchiternum<-matchiternum+1
+matchiternum<-matchiternum + 1
 #set match vars and treatment group (edit this by hand for each new model) 
 ta.matchvars<-c("Age","RaceEthnicity","CriminalConvictions","Education1","Gender","taincl.First.cr.cat","AnnualHHIncome")
 ta.treatment<-"taincl.is.compl.timingok"
